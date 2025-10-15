@@ -60,9 +60,10 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
             {children}
           </pre>
           {codeContent && (
-            <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 z-10">
+            <div className="absolute top-2 right-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
               <CopyCodeButton code={codeContent} />
             </div>
+
           )}
         </div>
       )

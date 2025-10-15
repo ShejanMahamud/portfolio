@@ -1,6 +1,6 @@
 import { createBlogPageMetadata } from '@/lib/blog-page-helpers'
 import { generateStructuredData, getBlogSEOData } from '@/lib/blog-seo'
-import BlogContent from './page.mdx'
+import BlogContent from './content.mdx'
 
 // Generate metadata for this specific blog post
 export const generateMetadata = createBlogPageMetadata('/blog/javascript-internals-how-proto-prototype-and-inheritance-actually-work')

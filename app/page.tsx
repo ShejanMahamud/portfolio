@@ -276,11 +276,12 @@ export default function Personal() {
         <div className="flex flex-col space-y-2">
           {WORK_EXPERIENCE.map((job) => (
             <a
+              key={job.id}
               className="relative overflow-hidden rounded-2xl bg-zinc-300/30 p-[1px] dark:bg-zinc-600/30"
               href={job.link}
               target="_blank"
               rel="noopener noreferrer"
-              key={job.id}
+
             >
               <Spotlight
                 className="from-zinc-900 via-zinc-800 to-zinc-700 blur-2xl dark:from-zinc-100 dark:via-zinc-200 dark:to-zinc-50"
