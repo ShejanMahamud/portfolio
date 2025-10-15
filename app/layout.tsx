@@ -17,11 +17,11 @@ export const metadata: Metadata = {
     canonical: '/'
   },
   title: {
-    default: 'Shejan Mahamud - Full Stack Engineer',
+    default: 'Shejan Mahamud - Full Stack Developer',
     template: '%s | Shejan Mahamud'
   },
   description: 'Shejan Mahamud is a full stack engineer specializing in building modern web applications and saas products. Expert in React, Next.js, TypeScript, Node.js, and cloud technologies.',
-  keywords: ['Shejan Mahamud', 'Full Stack Engineer', 'React Developer', 'Next.js', 'TypeScript', 'JavaScript', 'Node.js', 'Web Development', 'Frontend', 'Backend', 'Software Engineer'],
+  keywords: ['Shejan Mahamud', 'Full Stack Developer', 'React Developer', 'Next.js', 'TypeScript', 'JavaScript', 'Node.js', 'Web Development', 'Frontend', 'Backend', 'Software Developer'],
   authors: [{ name: 'Shejan Mahamud', url: 'https://shejan.me' }],
   creator: 'Shejan Mahamud',
   publisher: 'Shejan Mahamud',
@@ -31,14 +31,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://shejan.me',
     siteName: 'Shejan Mahamud - Portfolio',
-    title: 'Shejan Mahamud - Full Stack Engineer',
+    title: 'Shejan Mahamud - Full Stack Developer',
     description: 'Full stack engineer specializing in building modern web applications and saas products. Expert in React, Next.js, TypeScript, and cloud technologies.',
     images: [
       {
         url: 'https://shejan.me/cover.jpg',
         width: 1200,
         height: 630,
-        alt: 'Shejan Mahamud - Full Stack Engineer',
+        alt: 'Shejan Mahamud - Full Stack Developer',
       },
     ],
   },
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@dev_shejan',
     creator: '@dev_shejan',
-    title: 'Shejan Mahamud - Full Stack Engineer',
+    title: 'Shejan Mahamud - Full Stack Developer',
     description: 'Full stack engineer specializing in building modern web applications and saas products.',
     images: ['https://shejan.me/cover.jpg'],
   },
@@ -86,7 +86,7 @@ export default function RootLayout({
     "name": "Shejan Mahamud",
     "url": "https://shejan.me",
     "image": "https://shejan.me/cover.png",
-    "jobTitle": "Full Stack Engineer",
+    "jobTitle": "Full Stack Developer",
     "description": "Full stack engineer specializing in building modern web applications and saas products. Expert in React, Next.js, TypeScript, Node.js, and cloud technologies.",
     "email": "dev.shejanmahamud@gmail.com",
     "knowsAbout": [
@@ -116,7 +116,7 @@ export default function RootLayout({
     },
     "hasOccupation": {
       "@type": "Occupation",
-      "name": "Full Stack Engineer",
+      "name": "Full Stack Developer",
       "occupationLocation": {
         "@type": "Country",
         "name": "Bangladesh"
