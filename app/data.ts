@@ -58,7 +58,7 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     title: 'JavaScript Internals: How __proto__, prototype, and inheritance actually work',
     description: 'A deep dive into the mechanics of JavaScript’s object system.',
-    link: '/blog/javascript-internals-how-__proto__-prototype-and-inheritance-actually-work',
+    link: '/blog/javascript-internals-how-proto-prototype-and-inheritance-actually-work',
     uid: 'blog-4',
     language: 'bn',
     thumbnail: '/blogs/js-internals.webp',

@@ -20,7 +20,43 @@ export const metadata: Metadata = {
     default: 'Shejan Mahamud - Full Stack Engineer',
     template: '%s | Shejan Mahamud'
   },
-  description: 'Shejan Mahamud is a full stack engineer specializing in building modern web applications and saas products.',
+  description: 'Shejan Mahamud is a full stack engineer specializing in building modern web applications and saas products. Expert in React, Next.js, TypeScript, Node.js, and cloud technologies.',
+  keywords: ['Shejan Mahamud', 'Full Stack Engineer', 'React Developer', 'Next.js', 'TypeScript', 'JavaScript', 'Node.js', 'Web Development', 'Frontend', 'Backend', 'Software Engineer'],
+  authors: [{ name: 'Shejan Mahamud', url: 'https://shejan.me' }],
+  creator: 'Shejan Mahamud',
+  publisher: 'Shejan Mahamud',
+  robots: 'index, follow',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://shejan.me',
+    siteName: 'Shejan Mahamud - Portfolio',
+    title: 'Shejan Mahamud - Full Stack Engineer',
+    description: 'Full stack engineer specializing in building modern web applications and saas products. Expert in React, Next.js, TypeScript, and cloud technologies.',
+    images: [
+      {
+        url: 'https://shejan.me/cover.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Shejan Mahamud - Full Stack Engineer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@dev_shejan',
+    creator: '@dev_shejan',
+    title: 'Shejan Mahamud - Full Stack Engineer',
+    description: 'Full stack engineer specializing in building modern web applications and saas products.',
+    images: ['https://shejan.me/cover.jpg'],
+  },
+  verification: {
+    google: "3Uo2rHeyg0UJi1X0oGso5LVdZwhOTX5BSzjBudkCUrE",
+  },
+  other: {
+    'msapplication-TileColor': '#ffffff',
+    'theme-color': '#ffffff',
+  },
 };
 
 const geist = Geist({
@@ -44,8 +80,93 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Shejan Mahamud",
+    "url": "https://shejan.me",
+    "image": "https://shejan.me/cover.png",
+    "jobTitle": "Full Stack Engineer",
+    "description": "Full stack engineer specializing in building modern web applications and saas products. Expert in React, Next.js, TypeScript, Node.js, and cloud technologies.",
+    "email": "dev.shejanmahamud@gmail.com",
+    "knowsAbout": [
+      "JavaScript",
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Web Development",
+      "Software Engineering",
+      "Full Stack Development"
+    ],
+    "sameAs": [
+      "https://github.com/ShejanMahamud",
+      "https://twitter.com/dev_shejan",
+      "https://www.linkedin.com/in/md-shejanmahamud",
+      "https://www.instagram.com/shejanmahamud.me"
+    ],
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Johuniq",
+      "url": "https://johuniq.xyz"
+    },
+    "alumniOf": {
+      "@type": "Organization",
+      "name": "University of the People"
+    },
+    "hasOccupation": {
+      "@type": "Occupation",
+      "name": "Full Stack Engineer",
+      "occupationLocation": {
+        "@type": "Country",
+        "name": "Bangladesh"
+      },
+      "skills": [
+        "React",
+        "Next.js",
+        "TypeScript",
+        "JavaScript",
+        "Node.js",
+        "Web Development",
+        "Software Engineering"
+      ]
+    }
+  }
+
+  const websiteStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Shejan Mahamud - Portfolio",
+    "url": "https://shejan.me",
+    "description": "Personal portfolio and blog of Shejan Mahamud, a full stack engineer specializing in modern web applications.",
+    "author": {
+      "@type": "Person",
+      "name": "Shejan Mahamud"
+    },
+    "inLanguage": "en-US",
+    "copyrightYear": new Date().getFullYear(),
+    "copyrightHolder": {
+      "@type": "Person",
+      "name": "Shejan Mahamud"
+    }
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="google-site-verification" content="3Uo2rHeyg0UJi1X0oGso5LVdZwhOTX5BSzjBudkCUrE" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteStructuredData) }}
+        />
+      </head>
       <body
         className={`${geist.variable} ${geistMono.variable} ${hindiSiliguri.variable} bg-white tracking-tight antialiased dark:bg-zinc-950`}
       >

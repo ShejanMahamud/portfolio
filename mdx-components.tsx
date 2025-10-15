@@ -1,5 +1,6 @@
 import { CopyCodeButton } from '@/components/ui/copy-code-button'
 import type { MDXComponents } from 'mdx/types'
+import Image from 'next/image'
 import { ComponentPropsWithoutRef } from 'react'
 import { highlight } from 'sugar-high'
 
@@ -17,7 +18,16 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     }) => {
       return (
         <figure className="my-8">
-          <img src={src} alt={alt} className="rounded-xl w-full" />
+          <div className="relative aspect-video w-full overflow-hidden rounded-xl">
+            <Image
+              src={src}
+              alt={alt}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            />
+          </div>
           <figcaption className="text-center text-sm text-zinc-600 dark:text-zinc-400 mt-2">
             {caption}
           </figcaption>
