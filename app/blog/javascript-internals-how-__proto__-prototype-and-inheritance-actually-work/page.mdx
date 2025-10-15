@@ -1,0 +1,178 @@
+<Cover
+  src="/blogs/js-internals.webp"
+  alt="JavaScript Internals - __proto__, prototype, and inheritance"
+  caption="Understanding JavaScript's prototype chain and inheritance mechanisms"
+/>
+
+কখন ভেবে দেখেছেন, Javascript - এ সবকিছুই `Object` বা `Object`-এর মতো আচরণ করে কিন্তু কিভাবে করে? কিভাবে `inheritance` কাজ করে? `proto` আর `prototype` এর মধ্যে পার্থক্য কোথায়? এই প্রশ্নগুলো আমাদের সবার মনেই আসে, তাই আজকে আমরা এই বিষয়েগুলো নিয়েই আলোচনা করবো। আমরা উত্তর খুঁজব কি, কেন এবং কিভাবে।
+
+জাভাস্ক্রিপ্ট - এ আমরা যখন একটা Variable Declare করি:
+
+```javascript
+let name = 'Shejan Mahamud'
+```
+
+এরপর আমরা `String` মেথড ব্যবহার করতে পারি, যেমন: `name.toLowerCase()`, `name.toUperCase()` কিন্তু এইটা আমরা কিভাবে পারি? আমরা তো জানি, `String` primitive টাইপ. তাহলে আমরা কিভাবে ডট মেথড ব্যবহার করে `String` মেথড গুলো ব্যবহার করে থাকি। ডট মেথড আমরা জানি শুধু `Object` এর উপর ব্যবহার করতে পারি। এই প্রশ্নের উওর আমরা একটু পরে পাবো। এর আগে আমরা `Object` কিভাবে কাজ করে সেটা বিস্তারিত দেখি।
+
+```javascript
+const info1 = {
+  fName1: 'Shejan',
+  lName2: 'Mahamud',
+}
+```
+
+আমরা এভাবে একটা `Object` তৈরি করলে, জাভাস্ক্রিপ্ট ইন্টারনালি একটা এক্সটা প্রোপারটি `__proto__` (নিচে আলোচনা করবো এটা নিয়ে) যুক্ত করে দেয়। এই `__proto__` এর ভ্যালু হিসেবে সেট হয় `Object` class এর `prototype`(নিচে আলোচনা করবো এটা নিয়ে). এই Object class এরও `__proto__` আছে, এবং এর ভ্যালু null কারণ এটা আর অন্য কোনো কিছুকে পয়েন্ট করছে না। Built-in `Object.prototype` নিজে কোনো prototype থেকে inherit করে না, তাই তার `__proto__` হয় `null`। বিষয়টি অনেক কনফিউশন তৈরি করে, আমরা এটা উদাহরণ এর মাধ্যমে দেখি:
+
+```javascript
+const info2 = {
+  fName2: 'Boltu',
+  lName2: 'Mia',
+  __proto__: info1,
+}
+```
+
+```javascript
+const info3 = {
+  fName3: 'Habu',
+  lName3: 'Mia',
+  __proto__: info2,
+}
+```
+
+আমরা **info2** এবং **info3** `Object` তৈরি করে intentionally `__proto__` সেট করে দিলাম,এখন আমরা কি এমন করতে পারি যে, **info3** থেকে **fName1** এর ভ্যালু পেতে পারি? ইজ ইট পসিবল? উওর হচ্ছে হ্যাঁ পসিবল, চলুন দেখি কিভাবে!
+
+আমরা যখন `Object` এ method channing করি `info3.fName1` তখন, জাভাস্ক্রিপ্ট প্রথমে base `Object`(**info3**) এ খুজে, সেখানে না পেলে `__proto__` তে খুঁজে, আমরা **info3** এর `__proto__` সেট করেছি **info2**, তাই এরপর খুঁজবে **info2** এ, সেখানেও যদি না পায় আবারও **info2** এর `__proto__` তে খুঁজবে, আমরা **info2** এর `__proto__` সেট করেছি **info1** তাই এবার খুঁজবে **info1** এ, আর **info1** এ আমরা পেয়ে যাবো **fName**। এবার একটু জট খুলছে তাই না কিভাবে **info3** থেকে **info1** এর প্রোপার্টি গুলো পেতে পারি? এভাবেই **inheritence** কাজ করে।
+
+```
+┌────────────┐
+│  info3     │
+│ fName3     │
+└────┬───────┘
+     │  __proto__
+     ▼
+┌────────────┐
+│  info2     │
+│ fName2     │
+└────┬───────┘
+     │  __proto__
+     ▼
+┌────────────┐
+│  info1     │
+│ fName1     │
+└────┬───────┘
+     │  __proto__
+     ▼
+┌────────────┐
+│ Object.prototype │
+└────┬───────┘
+     ▼
+    null
+```
+
+প্রতিটি object তার পরবর্তী object-এর দিকে পয়েন্ট করছে `__proto__`এর মাধ্যমে। এভাবেই কাজ করে **prototype chain**
+
+এখনও আমাদের মনে অনেক প্রশ্ন, আমরা কেনো জাভাস্ক্রিপ্ট -এ সবকিছুই অবজেক্ট বলি এই প্রশ্নের উওর খুঁজে বের করার চেষ্টা করি:
+
+JavaScript এ প্রায় সবকিছুই `Object` বা `Object` থেকে derived, primitive টাইপগুলো `Object` না হলেও temporary wrapper object এর মাধ্যমে `Object`-এর মতো আচরণ করে।
+
+```javascript
+let yourName = 'Boltu'
+```
+
+কি হয় যখন আমরা String মেথড গুলো ব্যবহার করতে যাই? আমরা জানি, primitive ডাটা টাইপ এর নিজস্ব কোন মেথড থাকে না, আমরা JavaScript এর built-in String ক্লাস এর মেথড গুলো ব্যবহার করি, কিন্তু কিভাবে?
+
+আমরা যখন `yourName.toLowerCase()` লিখি তখন JavaScript primitive টাইপ কে wrap করে equivalent built-in class দিয়ে temporary wrapper object তৈরি করে। সহজ ভাবেঃ
+
+```javascript
+new String('Boltu')
+```
+
+এইটা যখন হয় তখন, temporary object এর `__proto__` automatic পয়েন্ট করে String.prototype এ। আর এই জন্যই আমরা যদি লিখি .at তখন base object এ খুঁজে আর base object এ না পেলে String.prototype এ খুঁজে পায়। Operation complete হওয়ার পরে wrapper object মুছে যায় এবং `yourName` আগের primitive অবস্থায় চলে যায়। একই ভাবে অন্যান্য টাইপ এর ক্ষেত্রেও এভাবেই কাজ করে।
+
+আশা করি এবার আমরা বুঝতে পারলাম কেন JavaScript এ সব কিছুই object এবং আমাদের প্রথম প্রশ্নেরও উত্তর পেয়ে গেলাম।
+
+এবার আমরা আরেকটা উত্তর খুঁজব, `__proto__` vs `prototype`
+
+আমরা যখন একটা function বা class লিখি, তখন তার সাথে একটা ব্লুপ্রিন্ট object (যেটা prototype বলে) অটোমেটিক তৈরি হয়। চলেন ব্যাখ্যা করি JavaScript কিভাবে এটা internally বানায়।
+
+যখন একটা function লেখা হয়
+
+```javascript
+function Person(name) {
+  this.name = name
+}
+```
+
+JavaScript internally তৈরি করে:
+
+```javascript
+Person.prototype = { constructor: Person }
+```
+
+অর্থাৎ `Person` function-এর একটা hidden property থাকে `prototype`,
+
+যেটা একটা object, যার মধ্যে শুরুতেই `constructor` property থাকে।
+
+আমরা চাইলে ঐ prototype object-এ method যোগ করতে পারবো
+
+```javascript
+Person.prototype.sayHi = function () {
+  console.log('Hi ' + this.name)
+}
+```
+
+যখন আমরা `new` ব্যবহার করি
+
+```javascript
+const p1 = new Person('Shejan')
+```
+
+JS internally করে এই কাজগুলো:
+
+1. `p1 = {}` (নতুন object বানায়)
+2. `p1.__proto__ = Person.prototype`
+3. `Person.call(p1, "Shejan")` (constructor function চালায়)
+4. `return p1`
+
+এখন `p1` object জানে —
+
+যদি কোনো property নিজে না পায়, তাহলে `__proto__` (মানে `Person.prototype`) তে খুঁজবে।
+
+তাই সম্পর্ক টা এমনঃ
+
+```javascript
+p1.__proto__ === Person.prototype
+Person.prototype.constructor === Person
+```
+
+অর্থাৎ:
+
+- `prototype` → function-এর ব্লুপ্রিন্ট object
+- `__proto__` → object-এর reference সেই ব্লুপ্রিন্টের দিকে
+
+Class-এও একই জিনিস হয়
+
+```javascript
+class User {
+  sayHi() {
+    console.log('Hi')
+  }
+}
+
+console.log(typeof User) // "function"
+console.log(User.prototype) // { sayHi: f, constructor: f User() }
+```
+
+Class মূলত function-এর syntax sugar, ভিতরে একইভাবে `prototype` বানায়। আসলে `class` internally constructor function ব্যবহার করে, এবং এর methods গুলো `ClassName.prototype` এ define হয়।
+
+আর `__proto__` কি?
+
+`__proto__` প্রতিটি object instance-এর (যেমন array, function, object — সবকিছুর) মধ্যে থাকে।
+
+এটা হচ্ছে একটা **internal pointer** বা **link**,
+
+যেটা ওই object-টা কোন prototype (অর্থাৎ কোন object থেকে inherit ) সেটার দিকে পয়েন্ট করে। (Default ভাবে Built-in `Object` class এ পয়েন্ট করে)
+
+এই `__proto__`-র মাধ্যমেই **prototype chain lookup** কাজ করে।
+
+আশা করি আজকের আলোচনার মাধ্যমে JavaScript এর এই জটিল বিষয়গুলো আরেকটু পরিষ্কার হয়েছে। প্রথমে হয়তো একটু কঠিন লাগতে পারে, কিন্তু যখন আপনি বুঝতে পারবেন কিভাবে JavaScript internally কাজ করে, তখন এই ভাষাটা আরও অনেক মজার লাগবে।
