@@ -52,11 +52,18 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       const codeContent = getCodeContent(children)
 
       return (
-        <div className="relative my-6">
-          <pre className="overflow-x-auto rounded-lg bg-zinc-800 p-4 text-sm dark:bg-zinc-900" {...props}>
+        <div className="relative my-6 group">
+          <pre
+            className="overflow-x-auto rounded-lg bg-zinc-800 p-4 text-sm dark:bg-zinc-900"
+            {...props}
+          >
             {children}
           </pre>
-          {codeContent && <CopyCodeButton code={codeContent} />}
+          {codeContent && (
+            <div className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100 z-10">
+              <CopyCodeButton code={codeContent} />
+            </div>
+          )}
         </div>
       )
     },

@@ -2,7 +2,7 @@
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { TextEffect } from '@/components/ui/text-effect'
 import { TextMorph } from '@/components/ui/text-morph'
-import { generateBreadcrumbStructuredData, generateStructuredData, getBlogSEOData } from '@/lib/blog-seo'
+import { getBlogSEOData } from '@/lib/blog-seo'
 import {
   FacebookIcon,
   FacebookShareButton,
@@ -64,100 +64,8 @@ export default function LayoutBlogPost({
   // Fallback values for when post is not found
   const title = seoData?.title || 'Blog Post'
   const description = seoData?.description || 'A blog post about web development'
-  const thumbnail = seoData?.thumbnail || 'https://shejan.me/cover.jpg'
   const tags = seoData?.tags || ['Blog', 'Web Development']
-  const language = seoData?.language || 'en'
   const fullUrl = seoData?.url || `https://shejan.me${pathname}`
-  const authorName = seoData?.author || 'Shejan Mahamud'
-
-  // Generate structured data
-  const structuredData = seoData ? generateStructuredData(seoData) : null
-  const breadcrumbData = seoData ? generateBreadcrumbStructuredData(seoData) : null
-
-  // Update document head dynamically
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Update title
-      document.title = `${title} | Shejan Mahamud - Blog`
-
-      // Update or create meta tags
-      const updateMetaTag = (name: string, content: string, isProperty?: boolean) => {
-        const selector = isProperty ? `meta[property="${name}"]` : `meta[name="${name}"]`
-        let meta = document.querySelector(selector) as HTMLMetaElement
-        if (!meta) {
-          meta = document.createElement('meta')
-          if (isProperty) {
-            meta.setAttribute('property', name)
-          } else {
-            meta.setAttribute('name', name)
-          }
-          document.head.appendChild(meta)
-        }
-        meta.setAttribute('content', content)
-      }
-
-      // Basic meta tags
-      updateMetaTag('description', description)
-      updateMetaTag('keywords', tags.join(', '))
-      updateMetaTag('author', authorName)
-      updateMetaTag('robots', 'index, follow')
-
-      // Open Graph tags
-      updateMetaTag('og:type', 'article', true)
-      updateMetaTag('og:title', title, true)
-      updateMetaTag('og:description', description, true)
-      updateMetaTag('og:image', thumbnail, true)
-      updateMetaTag('og:url', fullUrl, true)
-      updateMetaTag('og:site_name', 'Shejan Mahamud - Blog', true)
-      updateMetaTag('og:locale', language === 'bn' ? 'bn_BD' : 'en_US', true)
-
-      // Twitter Card tags
-      updateMetaTag('twitter:card', 'summary_large_image')
-      updateMetaTag('twitter:site', '@dev_shejan')
-      updateMetaTag('twitter:creator', '@dev_shejan')
-      updateMetaTag('twitter:title', title)
-      updateMetaTag('twitter:description', description)
-      updateMetaTag('twitter:image', thumbnail)
-
-      // Article specific tags
-      updateMetaTag('article:author', authorName, true)
-      updateMetaTag('article:published_time', seoData?.publishedTime || new Date().toISOString(), true)
-      updateMetaTag('article:section', 'Technology', true)
-
-      // Update canonical URL
-      let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement
-      if (!canonical) {
-        canonical = document.createElement('link')
-        canonical.setAttribute('rel', 'canonical')
-        document.head.appendChild(canonical)
-      }
-      canonical.setAttribute('href', fullUrl)
-
-      // Add structured data for blog post
-      if (structuredData) {
-        let structuredDataScript = document.querySelector('script[type="application/ld+json"][data-type="blog-post"]')
-        if (!structuredDataScript) {
-          structuredDataScript = document.createElement('script')
-          structuredDataScript.setAttribute('type', 'application/ld+json')
-          structuredDataScript.setAttribute('data-type', 'blog-post')
-          document.head.appendChild(structuredDataScript)
-        }
-        structuredDataScript.textContent = JSON.stringify(structuredData)
-      }
-
-      // Add breadcrumb structured data
-      if (breadcrumbData) {
-        let breadcrumbScript = document.querySelector('script[type="application/ld+json"][data-type="breadcrumb"]')
-        if (!breadcrumbScript) {
-          breadcrumbScript = document.createElement('script')
-          breadcrumbScript.setAttribute('type', 'application/ld+json')
-          breadcrumbScript.setAttribute('data-type', 'breadcrumb')
-          document.head.appendChild(breadcrumbScript)
-        }
-        breadcrumbScript.textContent = JSON.stringify(breadcrumbData)
-      }
-    }
-  }, [title, description, thumbnail, tags, language, fullUrl, authorName, seoData, structuredData, breadcrumbData])
 
   return (
     <>

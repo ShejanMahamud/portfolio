@@ -1,4 +1,5 @@
 import { BLOG_POSTS } from "@/app/data"
+import { Metadata } from "next"
 
 export interface BlogSEOData {
     title: string
@@ -81,6 +82,64 @@ export function generateStructuredData(seoData: BlogSEOData) {
             "name": seoData.siteName,
             "url": seoData.baseUrl
         }
+    }
+}
+
+export function generateBlogMetadata(pathname: string): Metadata {
+    const seoData = getBlogSEOData(pathname)
+
+    if (!seoData) {
+        return {
+            title: 'Blog Post Not Found',
+            description: 'The requested blog post could not be found.',
+        }
+    }
+
+    return {
+        title: seoData.title,
+        description: seoData.description,
+        keywords: seoData.tags,
+        authors: [{ name: seoData.author, url: seoData.authorUrl }],
+        creator: seoData.author,
+        publisher: seoData.author,
+        robots: 'index, follow',
+        alternates: {
+            canonical: seoData.url
+        },
+        openGraph: {
+            type: 'article',
+            locale: seoData.language === 'bn' ? 'bn_BD' : 'en_US',
+            url: seoData.url,
+            siteName: seoData.siteName,
+            title: seoData.title,
+            description: seoData.description,
+            images: [
+                {
+                    url: seoData.thumbnail,
+                    width: 1200,
+                    height: 630,
+                    alt: seoData.title,
+                },
+            ],
+            publishedTime: seoData.publishedTime,
+            authors: [seoData.author],
+            section: 'Technology',
+            tags: seoData.tags,
+        },
+        twitter: {
+            card: 'summary_large_image',
+            site: '@dev_shejan',
+            creator: '@dev_shejan',
+            title: seoData.title,
+            description: seoData.description,
+            images: [seoData.thumbnail],
+        },
+        other: {
+            'article:author': seoData.author,
+            'article:published_time': seoData.publishedTime,
+            'article:section': 'Technology',
+            'article:tag': seoData.tags.join(','),
+        },
     }
 }
 
