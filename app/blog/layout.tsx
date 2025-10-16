@@ -6,8 +6,12 @@ import { getBlogSEOData } from '@/lib/blog-seo'
 import {
   FacebookIcon,
   FacebookShareButton,
+  LinkedinIcon,
+  LinkedinShareButton,
   RedditIcon,
   RedditShareButton,
+  TelegramIcon,
+  TelegramShareButton,
   TwitterIcon,
   TwitterShareButton,
 } from 'next-share'
@@ -113,6 +117,15 @@ export default function LayoutBlogPost({
           >
             <RedditIcon size={32} round />
           </RedditShareButton>
+          <LinkedinShareButton url={fullUrl}>
+            <LinkedinIcon size={32} round />
+          </LinkedinShareButton>
+          <TelegramShareButton
+            url={fullUrl}
+            title={title}
+          >
+            <TelegramIcon size={32} round />
+          </TelegramShareButton>
         </div>
       </div>
     </>
