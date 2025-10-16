@@ -1,0 +1,264 @@
+<Cover
+  src="/blogs/js-internals.webp"
+  alt="JavaScript Internals: Global Execution Context & Temporal Dead Zone"
+  caption="Understanding JavaScript's Global Execution Context & Temporal Dead Zone"
+/>
+
+কখনও কি ভেবে দেখেছেন, JavaScript ভিতরে ভিতরে কিভাবে code রান করে? কিভাবে Global Execution Context কাজ করে? শুধু কি var ই hoisting হয়? let, const এর ক্ষেত্রে কি ঘটে? চলুন প্রশ্নগুলোর উত্তর খুঁজে বের করার চেষ্টা করি।
+
+```javascript
+console.log('My age is', age)
+console.log('My name is', name)
+console.log('My country is', country)
+
+var age = 24
+let name = 'Shejan'
+const country = 'Bangladesh'
+sayHi()
+function sayHi() {
+  console.log('Hi!')
+}
+```
+
+উপরোক্ত কোড এর আউটপুট কি হতে পারে? প্রথম line এ তো নিশ্চয়ই `undefined` প্রিন্ট হবে, তাই না? কিন্তু বাকি দুইটা line এ কি হবে? আর সবচেয়ে বড় প্রশ্ন - এইসব কেন আর কিভাবে হচ্ছে?
+
+## Global Execution Context কিভাবে কাজ করে?
+
+আমরা যখন কোন JavaScript কোড রান করি, তখন সবার প্রথমে একটা **Global Execution Context** তৈরি হয়। এই জিনিসটাই হচ্ছে JavaScript execution এর মূল বিষয়বস্তু! এই Global Execution Context এর মধ্যে ২ টা গুরুত্বপূর্ণ phase থাকে:
+
+1. **Memory Creation Phase** (Memory Phase)
+2. **Code Execution Phase** (Thread Phase)
+
+চলুন একটা একটা করে দেখি কি হয় প্রতিটা phase এ।
+
+### Memory Creation Phase
+
+এটা হচ্ছে preparation এর সময়। এই phase এ JavaScript Engine পুরো কোডটা একবার scan করে (execute না করে শুধু দেখে) এবং সব variables আর functions এর জন্য memory তে জায়গা বরাদ্দ করে দেয়।
+
+কিন্তু এখানে একটা মজার twist আছে:
+
+- **Variables** (var, let, const) গুলোকে memory তে জায়গা দেওয়া হয়
+  - `var` কে দেওয়া হয় `undefined` value
+  - `let` আর `const` কে memory তে রাখা হয় কিন্তু initialize করা হয় না (uninitialized state)
+- **Functions** (function declarations) কে তাদের পুরো code body সহ memory তে তুলে রাখা হয়
+
+তাহলে আমাদের উদাহরণের কোডে Memory Phase এ কি হবে?
+
+```bash
+age: undefined
+name: <uninitialized>
+country: <uninitialized>
+sayHi: function() { console.log("Hi!"); }
+
+```
+
+দেখতে পাচ্ছি আমরা, code একটা line ও execute হওয়ার আগেই সবকিছু memory তে চলে গেছে! এই পুরো Memory Creation Phase এ variables ও functions কে memory তে তুলে নেওয়ার প্রক্রিয়াটাকেই বলে Hoisting — আর এই process টাকেই JavaScript এর execution এর “magical” অংশ বলা হয়।
+
+### Code Execution Phase
+
+এবার আসল খেলা শুরু! এখন JavaScript Engine line by line code execute করা শুরু করবে।
+
+**Line 1:** `console.log("My age is", age);`
+
+- `age` এর value খুঁজতে গেল memory তে
+- পেল `undefined`
+- **Output:** `My age is undefined`
+
+**Line 2:** `console.log("My name is", name);`
+
+- `name` এর value খুঁজতে গেল memory তে
+- পেল যে memory তে আছে কিন্তু এখনো initialize হয়নি (TDZ তে আছে)
+- **Output:** `ReferenceError: Cannot access 'name' before initialization`
+
+Code execution এখানেই থেমে যাবে! বাকি lines আর execute হবে না।
+
+কিন্তু যদি Line 2 আর 3 না থাকত, তাহলে কি হত?
+
+**Line 4:** `var age = 24;`
+
+- `age` এর memory তে value update হয়ে গেল `undefined` থেকে `24`
+
+**Line 5:** `let name = "Shejan";`
+
+- `name` এখন initialize হল এবং value পেল `"Shejan"`
+- এখন থেকে `name` access করা যাবে
+
+**Line 6:** `const country = "Bangladesh";`
+
+- `country` initialize হল `"Bangladesh"` value নিয়ে
+
+**Line 7-9:** Function call
+
+- `sayHi()` function টা **memory phase** এ আগেই পুরো body সহ load হয়ে ছিল।
+- এখন যখন `sayHi()` call করা হচ্ছে, তখন JavaScript Engine একটা নতুন Execution Context তৈরি করে এই function এর জন্য।
+- এই নতুন context টা **Function Execution Context (FEC)** নামে পরিচিত — এটা Global Execution Context (GEC)-এর child হিসেবে কাজ করে।
+
+এই Function Execution Context এর মধ্যেও ঠিক GEC-এর মতো **দুইটা phase** থাকে।
+
+1. **Memory Creation Phase:**
+   - Function এর ভেতরের সব variables, parameters, এবং nested functions memory তে allocate করা হয়।
+   - Function এর arguments গুলো assign হয়।
+   - Function scope তৈরি হয় এবং outer lexical environment (যেখান থেকে function টা ডিফাইন করা হয়েছিল) এর সাথে **reference link** তৈরি হয় — এই link কেই বলে **scope chain**।
+2. **Code Execution (Thread) Phase:**
+   - এখন function এর body line by line execute হয়।
+   - `console.log("Hi!");` execute হয়ে **"Hi!"** প্রিন্ট হবে।
+
+একবার function এর execution শেষ হয়ে গেলে:
+
+- সেই Function Execution Context টা **call stack থেকে pop হয়ে যায়**,
+- আর control ফিরে আসে Global Execution Context এ।
+
+**_Note_**: সব code execution process যখন শেষ, তখন Global Execution Context টা call stack থেকে pop হয়ে যায়
+
+![JavaScript Internals: Global Execution Context & Temporal Dead Zone](/blogs/gec-diagram.svg)
+
+## Hoisting আসলে কি ?
+
+Hoisting হল JavaScript এর একটা default behavior যেখানে variable আর function declarations গুলোকে code execution এর আগেই memory তে তুলে নেওয়া হয়।
+
+এটাকে এভাবে চিন্তা করি - মনে হয় যেন সব declarations automatic code এর একদম top এ উঠে গেছে। যদিও আসলে code physically move হয় না, শুধু memory allocation টা আগে হয়ে যায়।
+
+## শুধু var ই কি hoisting হয়?
+
+এটা শুনে অনেকেই চমকে যান কিন্তু - **না, var ই শুধু hoisting হয় না!** এটা একটা বিরাট misconception যা অনেক developers এর মধ্যে আছে।
+
+সত্যি হল - **let, const এবং function, সবকিছুই hoisting হয়!** কিন্তু তাদের behaviour টা সম্পূর্ণ আলাদা। চলুন আমরা details এ যাই।
+
+### var এর ক্ষেত্রে কি ঘটে?
+
+```javascript
+console.log(name) // undefined
+var name = 'Rahim'
+console.log(name) // "Rahim"
+```
+
+`var` দিয়ে declare করা variable:
+
+- Hoisting হয়
+- `undefined` দিয়ে initialize হয়
+- Global scope বা function scope এ থাকে
+- Declaration এর আগেই access করা যায় (error দেয় না)
+
+### let এর ক্ষেত্রে কি ঘটে?
+
+```javascript
+console.log(name) // ReferenceError: Cannot access 'name' before initialization
+let name = 'Rahim'
+console.log(name) // "Rahim"
+```
+
+**এইটা কি ম্যাজিক?** না! আসলে `let` ও hoisting হয়েছে, কিন্তু এটা একটা বিশেষ অবস্থায় আটকে আছে যার নাম **Temporal Dead Zone (TDZ)**!
+
+Memory তে জায়গা হয়েছে বটে, কিন্তু initialize করা হয়নি। তাই declaration এর আগে access করতে গেলে JavaScript বলে দেয় - "ভাই, variable টা আছে, কিন্তু তুমি এখনো ওটা use করতে পারবা না!"
+
+### const এর ক্ষেত্রে কি ঘটে?
+
+```javascript
+console.log(age) // ReferenceError: Cannot access 'age' before initialization
+const age = 24
+console.log(age) // 24
+```
+
+`const` এর behavior ও হুবহু `let` এর মতই:
+
+- Hoisting হয়
+- TDZ তে থাকে declaration এর আগে পর্যন্ত
+- Block scope এ থাকে
+- Plus, একবার assign করার পর আর reassign করা যায় না
+
+## Temporal Dead Zone (TDZ) - আসলে কি?
+
+TDZ হল সেই সময়কাল বা zone যখন একটা variable memory তে আছে (hoisting এর কারণে), কিন্তু এখনো সেটা initialize হয়নি। এই সময়ে variable টা একদম "dead" - মানে আপনি ওটা access করতে পারবেন না।
+
+```javascript
+// ← TDZ শুরু হল x এবং y এর জন্য
+console.log(x) // ReferenceError - এখনো TDZ তে
+console.log(y) // ReferenceError - এখনো TDZ তে
+
+// TDZ চলছেই...
+let x = 10 // ← এই line এ x এর TDZ শেষ
+const y = 20 // ← এই line এ y এর TDZ শেষ
+
+console.log(x) // 10 - এখন access করা যাবে
+console.log(y) // 20 - এখন access করা যাবে
+```
+
+TDZ এর পুরো concept টাই হল আমাদেরকে better code লিখতে force করা। Variable declare করার আগে use করা একটা bad practice, আর TDZ আমাদের সেটা করতে দেয় না।
+
+## Function Hoisting - সবচেয়ে interesting part!
+
+Functions এর ক্ষেত্রে hoisting আরো মজার এবং powerful:
+
+```javascript
+greet() // "Hello World!" - Perfect! কাজ করবে!
+
+function greet() {
+  console.log('Hello World!')
+}
+```
+
+**এইটা কিভাবে সম্ভব?** কারণ **function declarations** সম্পূর্ণভাবে hoist হয়! মানে শুধু নাম না, পুরো function body সহ memory তে উঠে যায়। তাই declaration এর আগে থেকেই call করা যায়।
+
+কিন্তু একটু থামুন! সব function এভাবে কাজ করে না।
+
+### Function Expression এর ক্ষেত্রে:
+
+```javascript
+greet() // TypeError: greet is not a function
+
+var greet = function () {
+  console.log('Hello World!')
+}
+```
+
+এখানে কি হল? `greet` একটা variable হিসেবে hoist হয়েছে এবং `undefined` value পেয়েছে। Function হিসেবে hoist হয়নি! তাই call করতে গেলে error দেয়, অর্থাৎ Variable হিসেবে hoist হয় (undefined assign হয়), কিন্তু function body memory তে load হয় না।
+
+### Arrow Function এর ক্ষেত্রে:
+
+```javascript
+sayHello() // ReferenceError (যদি let/const use করা হয়)
+
+const sayHello = () => {
+  console.log('Hello!')
+}
+```
+
+Arrow function ও function expression এর মতই behave করে। এটা variable এর rules follow করে।
+
+## একটা Complete Example দিয়ে সব কিছু clear করি:
+
+```javascript
+console.log(a) // undefined (var hoisting)
+console.log(b) // ReferenceError (TDZ)
+console.log(c) // ReferenceError (TDZ)
+multiply(2, 3) // 6 (function hoisting)
+add(2, 3) // TypeError (function expression)
+
+var a = 10
+let b = 20
+const c = 30
+
+function multiply(x, y) {
+  return x * y
+}
+
+var add = function (x, y) {
+  return x + y
+}
+```
+
+## Memory Phase এ কি হবে:
+
+```javascript
+a: undefined
+b: <uninitialized>
+c: <uninitialized>
+multiply: function(x, y) { return x * y; }
+add: undefined
+```
+
+এখন তো বুঝলেন JavaScript ভিতরে ভিতরে কি খেলা দেখায়! Global Execution Context কিভাবে Memory Creation Phase এ সব কিছু setup করে, তারপর Code Execution Phase এ line by line execute করে।
+
+Hoisting শুধু `var` এর জন্য না - `let`, `const`, function সবকিছুই hoist হয়, কিন্তু তাদের behavior আলাদা। TDZ হল JavaScript এর একটা safety mechanism যা আমাদের better code লিখতে help করে।
+
+Happy Coding!
