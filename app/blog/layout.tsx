@@ -4,6 +4,7 @@ import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { TextEffect } from '@/components/ui/text-effect'
 import { TextMorph } from '@/components/ui/text-morph'
 import { TextSelectionProvider } from '@/components/ui/text-selection-provider'
+import { useReadingTime } from '@/hooks/useReadingTime'
 import { getBlogSEOData } from '@/lib/blog-seo'
 import {
   FacebookIcon,
@@ -44,7 +45,7 @@ function CopyButton() {
   return (
     <button
       onClick={handleCopy}
-      className="font-base flex items-center gap-1 text-center text-sm text-zinc-500 transition-colors dark:text-zinc-400"
+      className="font-base flex items-center gap-1 text-center text-sm text-zinc-500 transition-colors dark:text-zinc-400 cursor-pointer hover:text-zinc-700 dark:hover:text-zinc-200"
       type="button"
     >
       <TextMorph>{text}</TextMorph>
@@ -59,6 +60,7 @@ export default function LayoutBlogPost({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const readingTime = useReadingTime(pathname)
 
   // Find the blog post by matching the pathname
   const currentPost = BLOG_POSTS.find(post => pathname === post.link)
@@ -85,6 +87,10 @@ export default function LayoutBlogPost({
 
       <div className="absolute right-4 top-24">
         <CopyButton />
+        {/* reading time */}
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          {readingTime} min read
+        </p>
       </div>
       <TextSelectionProvider>
         <article className={`mt-24 pb-20 tracking-wide ${isBengali ? 'font-[family-name:var(--font-hindi-siliguri)] text-lg leading-relaxed' : 'leading-relaxed'}`}>

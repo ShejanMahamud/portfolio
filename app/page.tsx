@@ -207,32 +207,37 @@ export default function Personal() {
         <h3 className="mb-5 text-lg font-medium">Skills</h3>
         <div className="flex flex-wrap space-y-2 gap-2">
           {[
-            'C',
-            'JavaScript',
-            'TypeScript',
-            'Go',
-            'Node.js',
-            'NestJS',
-            'Express.js',
-            'PostgreSQL',
-            'MongoDB',
-            'Redis',
-            'RESTful APIs',
-            'GraphQL',
-            'BullMQ',
-            'Prisma',
-            'React',
-            'Next.js',
-            'Tailwind CSS',
-            'Git',
-            'Docker',
+            { name: 'C', current: false },
+            { name: 'JavaScript', current: true },
+            { name: 'TypeScript', current: true },
+            { name: 'Go', current: false },
+            { name: 'Node.js', current: true },
+            { name: 'NestJS', current: true },
+            { name: 'Express.js', current: false },
+            { name: 'PostgreSQL', current: true },
+            { name: 'MongoDB', current: false },
+            { name: 'Redis', current: true },
+            { name: 'RESTful APIs', current: true },
+            { name: 'GraphQL', current: false },
+            { name: 'BullMQ', current: true },
+            { name: 'Prisma', current: true },
+            { name: 'React', current: false },
+            { name: 'Next.js', current: true },
+            { name: 'Tailwind CSS', current: false },
+            { name: 'Git', current: false },
+            { name: 'Docker', current: true },
           ].map((skill) => (
-            <Magnetic springOptions={{ bounce: 0 }} intensity={0.3}>
+            <Magnetic springOptions={{ bounce: 0 }} intensity={0.3} key={skill.name}>
               <span
-                key={skill}
-                className="rounded-full bg-zinc-100 px-3 py-1 text-md text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200"
+                className={`
+            rounded-full px-4 py-2 text-sm
+            ${skill.current
+                    ? 'bg-zinc-400 text-white dark:bg-zinc-700 dark:text-white'
+                    : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200'
+                  }
+          `}
               >
-                {skill}
+                {skill.name}
               </span>
             </Magnetic>
           ))}
@@ -368,7 +373,7 @@ export default function Personal() {
             {EMAIL}
           </a>
         </p>
-        <div className="flex items-center flex-wrap justify-start space-x-3 space-y-3">
+        <div className="flex items-center flex-wrap justify-start space-x-3 space-y-3 lg:space-y-0">
           {SOCIAL_LINKS.map((link) => (
             <MagneticSocialLink key={link.label} link={link.link}>
               {link.label}
