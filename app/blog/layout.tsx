@@ -1,7 +1,9 @@
 'use client'
+import Comments from '@/components/Comments'
 import { ScrollProgress } from '@/components/ui/scroll-progress'
 import { TextEffect } from '@/components/ui/text-effect'
 import { TextMorph } from '@/components/ui/text-morph'
+import { TextSelectionProvider } from '@/components/ui/text-selection-provider'
 import { getBlogSEOData } from '@/lib/blog-seo'
 import {
   FacebookIcon,
@@ -84,9 +86,11 @@ export default function LayoutBlogPost({
       <div className="absolute right-4 top-24">
         <CopyButton />
       </div>
-      <article className={`mt-24 pb-20 tracking-wide ${isBengali ? 'font-[family-name:var(--font-hindi-siliguri)] text-lg leading-relaxed' : 'leading-relaxed'}`}>
-        {children}
-      </article>
+      <TextSelectionProvider>
+        <article className={`mt-24 pb-20 tracking-wide ${isBengali ? 'font-[family-name:var(--font-hindi-siliguri)] text-lg leading-relaxed' : 'leading-relaxed'}`}>
+          {children}
+        </article>
+      </TextSelectionProvider>
       <div className='mt-12 flex items-center flex-col justify-center'>
         <TextEffect
           as="p"
@@ -127,6 +131,7 @@ export default function LayoutBlogPost({
             <TelegramIcon size={32} round />
           </TelegramShareButton>
         </div>
+        <Comments />
       </div>
     </>
   )
